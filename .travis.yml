@@ -1,0 +1,19 @@
+language: android
+jdk: oraclejdk8
+
+android:
+  components:
+    - tools
+    - tools
+    - platform-tools
+    - build-tools-25.0.2
+    - android-25
+
+script: ./gradlew assembleRelease
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: dbEDhLz1xfsZZnPPa66U9uTVhQpKof6j+EsMdqYIteeTqafqZAUdLDjMx1XHYMFW9o2RCz7myZC/bmZnxQWXlRKSp44/t5WaP/nS46VC7jk/GbW5u+HlEGmC2EOnpA7hUB9JQdZ17qHuPSELu/A3wJynv5ioRdz5KSEitVjbWCzGJ3am/vyC5jxGFuNXr2zqMPUZ3xoCibNaEqlhn8AmkhP8sEMGvh04J5otuhMgMm/j9XE/LdtntZPovecpvQj1WlQ6VTmSWJxtpp0ugIxzZ1YDALC064sySH7aYlMIRnw6xuIx+2SUcOvkq6zjieQHrqUKnw1zFm5RIrt4ah+iKL6ZSlMN2khsiJm4QN3RWRat3XO8yAc9eE9kLNuWUhK4cqW1p/WWu6/A8+IU/1VueUjYdEO8/IqpHbC6sAdlWoA954jFVhammZyYxSv5KdiyMio9qizazdYBInpdX4jHx3oovavU+KrDgPKkIsUYt98IZMlbAikm3MeEffjoA31Avc8f5xFJIkTuEe/Q87nt+fYeR2uz1ni+OF7lSkP9qry3/cdcp7VUjTGbDU2DYxgiEmXZOHeZhl0Hf1IBKvfmCjGt9+9nqeACGM3E9ody7flUSlQNdqdzmRiaNfSpZxmDVjpzkDPMadFWxFw17zk3WF28mfppFze8UMRQ9CKQLYU=
+    on_success: change
