@@ -32,13 +32,15 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = ['src/main/kotlin']
+        main.java.srcDir 'src/main/kotlin'
+        test.java.srcDir 'src/test/kotlin'
     }
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'io.reactivex:rxjava:1.1.5'
+    testCompile 'junit:junit:4.12'
 }
 
 task sourcesJar(type: Jar) {

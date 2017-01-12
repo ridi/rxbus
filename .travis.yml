@@ -9,7 +9,7 @@ android:
     - build-tools-25.0.2
     - android-25
 
-script: ./gradlew assembleRelease
+script: ./gradlew test
 
 notifications:
   email: false
