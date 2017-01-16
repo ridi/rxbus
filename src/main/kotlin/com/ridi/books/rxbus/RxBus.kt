@@ -1,33 +1,25 @@
 package com.ridi.books.rxbus
 
+import rx.Scheduler
 import rx.functions.Action1
+import rx.schedulers.Schedulers
 import rx.subjects.PublishSubject
 import rx.subjects.SerializedSubject
-import rx.subscriptions.CompositeSubscription
 
 /**
  * Created by kering on 2017. 1. 12..
  */
 object RxBus {
-    private val eventsSubject = SerializedSubject<Any, Any>(PublishSubject.create())
-    private val subscriptions = hashMapOf<Any, CompositeSubscription>()
+    private val subject = SerializedSubject<Any, Any>(PublishSubject.create())
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> register(owner: Any, eventClass: Class<T>, onNext: Action1<T>) {
-        val subscription = eventsSubject.filter { event -> event.javaClass == eventClass }
-                .map { obj -> obj as T }
-                .subscribe(onNext)
-        subscriptions[owner]?.run {
-            add(subscription)
-        } ?: run {
-            subscriptions[owner] = CompositeSubscription(subscription)
-        }
-    }
+    @JvmStatic
+    fun <T> subscribe(eventClass: Class<T>, callback: Action1<T>) =
+            subscribe(eventClass, Schedulers.immediate(), callback)
 
-    fun unregister(owner: Any) {
-        subscriptions[owner]?.clear()
-        subscriptions.remove(owner)
-    }
+    @JvmStatic
+    fun <T> subscribe(eventClass: Class<T>, scheduler: Scheduler, callback: Action1<T>) =
+            subject.ofType(eventClass).observeOn(scheduler).subscribe(callback)
 
-    fun post(event: Any) = eventsSubject.onNext(event)
+    @JvmStatic
+    fun post(event: Any) = subject.onNext(event)
 }
