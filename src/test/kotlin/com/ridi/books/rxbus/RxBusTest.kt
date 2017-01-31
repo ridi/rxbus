@@ -3,26 +3,31 @@ package com.ridi.books.rxbus
 import net.jodah.concurrentunit.Waiter
 import org.junit.Assert
 import org.junit.Test
-
+import rx.Subscription
 import rx.functions.Action1
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
+import java.util.*
 
 /**
  * Created by kering on 2017. 1. 12..
  */
 class RxBusTest {
+    private val threadWaitingTimeoutMs = 10000L
     open class Event
     class ChildEvent : Event()
 
     @Test
     fun testSubscribeAndPost() {
-        val event = Event()
-        val subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
-            Assert.assertEquals(e, event)
-        })
-        RxBus.post(event)
-        subscription.unsubscribe()
+        var calledEvent: Event? = null
+        val subscription = RxBus.subscribe(Event::class.java, Action1 { e -> calledEvent = e })
+        try {
+            val event = Event()
+            RxBus.post(event)
+            Assert.assertEquals(event, calledEvent)
+        } finally {
+            subscription.unsubscribe()
+        }
     }
 
     @Test
@@ -36,85 +41,128 @@ class RxBusTest {
                     countAny++
                 })
         )
-        RxBus.post(Any())
-        Assert.assertEquals(countAny, 1)
 
-        subscription.add(RxBus.subscribe(Event::class.java, Action1 { countEvent++ }))
-        RxBus.post(Event())
-        Assert.assertEquals(countAny, 2)
-        Assert.assertEquals(countEvent, 1)
+        try {
+            RxBus.post(Any())
+            Assert.assertEquals(1, countAny)
 
-        subscription.add(RxBus.subscribe(ChildEvent::class.java, Action1 { countChildEvent++ }))
-        RxBus.post(ChildEvent())
-        Assert.assertEquals(countAny, 3)
-        Assert.assertEquals(countEvent, 2)
-        Assert.assertEquals(countChildEvent, 1)
+            subscription.add(RxBus.subscribe(Event::class.java, Action1 { countEvent++ }))
+            RxBus.post(Event())
+            Assert.assertEquals(2, countAny)
+            Assert.assertEquals(1, countEvent)
 
-        RxBus.post(Event())
-        Assert.assertEquals(countAny, 4)
-        Assert.assertEquals(countEvent, 3)
-        Assert.assertEquals(countChildEvent, 1)
+            subscription.add(RxBus.subscribe(ChildEvent::class.java, Action1 { countChildEvent++ }))
+            RxBus.post(ChildEvent())
+            Assert.assertEquals(3, countAny)
+            Assert.assertEquals(2, countEvent)
+            Assert.assertEquals(1, countChildEvent)
 
-        RxBus.post(Any())
-        Assert.assertEquals(countAny, 5)
-        Assert.assertEquals(countEvent, 3)
-        Assert.assertEquals(countChildEvent, 1)
+            RxBus.post(Event())
+            Assert.assertEquals(4, countAny)
+            Assert.assertEquals(3, countEvent)
+            Assert.assertEquals(1, countChildEvent)
 
-        subscription.clear()
+            RxBus.post(Any())
+            Assert.assertEquals(5, countAny)
+            Assert.assertEquals(3, countEvent)
+            Assert.assertEquals(1, countChildEvent)
+        } finally {
+            subscription.unsubscribe()
+        }
     }
 
     @Test
     fun testSticky() {
+        var calledEvent: Event? = null
         var count = 0
-        val event = Event()
-        RxBus.postSticky(event)
-        Assert.assertEquals(event, RxBus.getStickyEvent(Event::class.java))
+        var event = Event()
+        var subscription: Subscription? = null
 
-        var subscription = RxBus.subscribeSticky(Event::class.java, Action1 { e ->
-            Assert.assertEquals(e, event)
-            count++
-        })
-        Assert.assertEquals(count, 1)
-        RxBus.post(event)
-        Assert.assertEquals(count, 2)
-        subscription.unsubscribe()
-        Assert.assertEquals(RxBus.removeStickyEvent(Event::class.java), event)
+        try {
+            RxBus.postSticky(event)
+            Assert.assertEquals(event, RxBus.getStickyEvent(Event::class.java))
 
-        subscription = RxBus.subscribeSticky(Event::class.java, Action1 { count++ })
-        Assert.assertEquals(count, 2)
-        subscription.unsubscribe()
+            subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
+                calledEvent = e
+                count++
+            }, sticky = true)
+            Assert.assertEquals(event, calledEvent)
+            Assert.assertEquals(1, count)
+            RxBus.post(event)
+            Assert.assertEquals(2, count)
+            subscription.unsubscribe()
+            Assert.assertEquals(event, RxBus.removeStickyEvent(Event::class.java))
 
-        RxBus.postSticky(event)
-        subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
-            Assert.assertEquals(e, event)
-            count++
-        })
-        Assert.assertEquals(count ,2)
-        RxBus.post(event)
-        Assert.assertEquals(count, 3)
-        RxBus.postSticky(event)
-        Assert.assertEquals(count, 4)
-        subscription.unsubscribe()
-        Assert.assertEquals(RxBus.removeStickyEvent(Event::class.java), event)
+            subscription = RxBus.subscribe(Event::class.java, Action1 { count++ }, sticky = true)
+            Assert.assertEquals(2, count)
+            subscription.unsubscribe()
+
+            calledEvent = null
+            event = Event()
+            RxBus.postSticky(event)
+            subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
+                calledEvent = e
+                count++
+            })
+            Assert.assertNull(calledEvent)
+            Assert.assertEquals(2, count)
+            RxBus.post(event)
+            Assert.assertEquals(event, calledEvent)
+            Assert.assertEquals(3, count)
+            RxBus.postSticky(event)
+            Assert.assertEquals(4, count)
+            subscription.unsubscribe()
+            Assert.assertEquals(event, RxBus.removeStickyEvent(Event::class.java))
+        } finally {
+            subscription!!.unsubscribe()
+        }
     }
 
     @Test
     fun testScheduler() {
         val waiter = Waiter()
-        val testThread = Thread.currentThread()
+        var calledThreadId = Long.MIN_VALUE
         val callback = Action1<Event> {
-            Assert.assertNotEquals(testThread.id, Thread.currentThread().id)
+            calledThreadId = Thread.currentThread().id
             waiter.resume()
         }
 
-        var subscription = RxBus.subscribe(Event::class.java, callback, Schedulers.newThread())
-        RxBus.post(Event())
-        waiter.await()
-        subscription.unsubscribe()
+        var subscription = RxBus.subscribe(Event::class.java, callback,
+                scheduler = Schedulers.newThread())
+        try {
+            RxBus.post(Event())
+            waiter.await(threadWaitingTimeoutMs)
+            Assert.assertNotEquals(Thread.currentThread().id, calledThreadId)
+            subscription.unsubscribe()
 
-        RxBus.postSticky(Event())
-        subscription = RxBus.subscribeSticky(Event::class.java, callback, Schedulers.newThread())
-        waiter.await()
-        subscription.unsubscribe()
+            RxBus.postSticky(Event())
+            subscription = RxBus.subscribe(Event::class.java, callback,
+                    sticky = true, scheduler = Schedulers.newThread())
+            waiter.await(threadWaitingTimeoutMs)
+            Assert.assertNotEquals(Thread.currentThread().id, calledThreadId)
+        } finally {
+            subscription.unsubscribe()
+        }
+    }
+
+    @Test
+    fun testPriority() {
+        val stack = Stack<Int>()
+        val subscription = CompositeSubscription(
+            RxBus.subscribe(Event::class.java, Action1 {
+                stack.push(1)
+            }),
+            RxBus.subscribe(Event::class.java, Action1 {
+                stack.push(0)
+            }, priority = 1)
+        )
+
+        try {
+            RxBus.post(Event())
+            Assert.assertEquals(1, stack.pop())
+            Assert.assertEquals(0, stack.pop())
+        } finally {
+            subscription.unsubscribe()
+        }
     }
 }
