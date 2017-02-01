@@ -15,39 +15,40 @@ import java.util.*
  */
 object RxBus {
     private val subjects = TreeMap<Int, Subject<Any, Any>>()
-    private val subscriptionCounts = hashMapOf<Int, Int>()
     private val stickyEventMap = hashMapOf<Class<*>, Any>()
+    private val errorHandlers = mutableListOf<Action1<Throwable>>()
+    private val onError = Action1<Throwable> { e ->
+        errorHandlers.forEach { it.call(e) }
+    }
+
+    fun addErrorHandler(handler: Action1<Throwable>) {
+        errorHandlers.add(handler)
+    }
 
     @Suppress("UNCHECKED_CAST")
-    @Synchronized
     @JvmStatic
     @JvmOverloads
     fun <T> subscribe(eventClass: Class<T>, callback: Action1<T>,
                       sticky: Boolean = false, priority: Int = 0,
                       scheduler: Scheduler = Schedulers.immediate()): Subscription {
-        val observable = (subjects[priority] ?: run {
-            val subject = SerializedSubject<Any, Any>(PublishSubject.create())
-            subjects[priority] = subject
-            subject
-        }).ofType(eventClass)
-
-        subscriptionCounts[priority] = (subscriptionCounts[priority] ?: 0) + 1
-        return ((if (sticky) stickyEventMap[eventClass] else null)?.let { lastEvent ->
-            observable.mergeWith(Observable.create { subscriber ->
-                subscriber.onNext(lastEvent as T)
-            })
-        } ?: observable).doOnUnsubscribe {
-            synchronized(this) {
-                subscriptionCounts[priority]?.let { count ->
-                    if (count > 1) {
-                        subscriptionCounts[priority] = count - 1
-                    } else {
-                        subscriptionCounts.remove(priority)
-                        subjects.remove(priority)
-                    }
+        val observable = synchronized(subjects) {
+            (subjects[priority] ?: run {
+                val subject = SerializedSubject<Any, Any>(PublishSubject.create())
+                subjects[priority] = subject
+                subject
+            }).ofType(eventClass)
+        }
+        return (if (sticky) {
+            synchronized(stickyEventMap) {
+                stickyEventMap[eventClass]?.let { lastEvent ->
+                    observable.mergeWith(Observable.create { subscriber ->
+                        subscriber.onNext(lastEvent as T)
+                    })
                 }
             }
-        }.observeOn(scheduler).subscribe(callback)
+        } else {
+            null
+        } ?: observable).observeOn(scheduler).subscribe(callback, onError)
     }
 
     @JvmStatic

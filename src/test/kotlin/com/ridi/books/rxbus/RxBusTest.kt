@@ -165,4 +165,20 @@ class RxBusTest {
             subscription.unsubscribe()
         }
     }
+
+    @Test
+    fun testErrorHandler() {
+        val message = "exception!"
+        var receivedMessage: String? = null
+        val subscription = RxBus.subscribe(Event::class.java, Action1 {
+            throw RuntimeException(message)
+        })
+        RxBus.addErrorHandler(Action1 { throwable -> receivedMessage = throwable.message })
+        try {
+            RxBus.post(Event())
+            Assert.assertEquals(message, receivedMessage)
+        } finally {
+            subscription.unsubscribe()
+        }
+    }
 }
