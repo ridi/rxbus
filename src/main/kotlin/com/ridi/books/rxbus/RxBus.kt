@@ -21,9 +21,9 @@ object RxBus {
         errorHandlers.forEach { it.call(e) }
     }
 
-    fun addErrorHandler(handler: Action1<Throwable>) {
-        errorHandlers.add(handler)
-    }
+    fun addErrorHandler(handler: Action1<Throwable>) = errorHandlers.add(handler)
+
+    fun removeErrorHandler(handler: Action1<Throwable>) = errorHandlers.remove(handler)
 
     @Suppress("UNCHECKED_CAST")
     @JvmStatic

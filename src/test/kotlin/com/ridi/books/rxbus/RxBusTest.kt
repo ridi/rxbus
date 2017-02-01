@@ -170,13 +170,19 @@ class RxBusTest {
     fun testErrorHandler() {
         val message = "exception!"
         var receivedMessage: String? = null
-        val subscription = RxBus.subscribe(Event::class.java, Action1 {
-            throw RuntimeException(message)
-        })
-        RxBus.addErrorHandler(Action1 { throwable -> receivedMessage = throwable.message })
+        var calledEvent: Event? = null
+        val subscription = CompositeSubscription(
+                RxBus.subscribe(Event::class.java, Action1 { throw RuntimeException(message) }),
+                RxBus.subscribe(Event::class.java, Action1 { e -> calledEvent = e })
+        )
+        val errorHandler = Action1<Throwable> { throwable -> receivedMessage = throwable.message }
         try {
-            RxBus.post(Event())
+            Assert.assertTrue(RxBus.addErrorHandler(errorHandler))
+            val event = Event()
+            RxBus.post(event)
             Assert.assertEquals(message, receivedMessage)
+            Assert.assertEquals(event, calledEvent)
+            Assert.assertTrue(RxBus.removeErrorHandler(errorHandler))
         } finally {
             subscription.unsubscribe()
         }
