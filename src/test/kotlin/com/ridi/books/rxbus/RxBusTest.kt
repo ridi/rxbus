@@ -112,7 +112,7 @@ class RxBusTest {
             RxBus.postSticky(event)
             Assert.assertEquals(4, count)
             subscription.unsubscribe()
-            Assert.assertEquals(event, RxBus.removeStickyEvent(Event::class.java))
+            Assert.assertTrue(RxBus.removeStickyEvent(event))
         } finally {
             subscription!!.unsubscribe()
         }

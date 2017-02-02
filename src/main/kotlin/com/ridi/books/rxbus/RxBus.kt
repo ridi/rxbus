@@ -25,7 +25,6 @@ object RxBus {
 
     fun removeErrorHandler(handler: Action1<Throwable>) = errorHandlers.remove(handler)
 
-    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     @JvmOverloads
     fun <T> subscribe(eventClass: Class<T>, callback: Action1<T>,
@@ -42,7 +41,7 @@ object RxBus {
             synchronized(stickyEventMap) {
                 stickyEventMap[eventClass]?.let { lastEvent ->
                     observable.mergeWith(Observable.create { subscriber ->
-                        subscriber.onNext(lastEvent as T)
+                        subscriber.onNext(eventClass.cast(lastEvent))
                     })
                 }
             }
@@ -66,19 +65,30 @@ object RxBus {
         post(event)
     }
 
-    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> getStickyEvent(eventClass: Class<T>): T? {
         synchronized(stickyEventMap) {
-            return stickyEventMap[eventClass] as T?
+            return eventClass.cast(stickyEventMap[eventClass])
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> removeStickyEvent(eventClass: Class<T>): T? {
         synchronized(stickyEventMap) {
-            return stickyEventMap.remove(eventClass) as T?
+            return eventClass.cast(stickyEventMap.remove(eventClass))
+        }
+    }
+
+    @JvmStatic
+    fun removeStickyEvent(event: Any): Boolean {
+        synchronized(stickyEventMap) {
+            val eventClass = event.javaClass
+            if (stickyEventMap[eventClass] == event) {
+                stickyEventMap.remove(eventClass)
+                return true
+            } else {
+                return false
+            }
         }
     }
 }
