@@ -27,6 +27,20 @@ object RxBus {
 
     @JvmStatic
     @JvmOverloads
+    fun <T> subscribe(eventClass: Class<T>, callback: () -> Unit,
+                      sticky: Boolean = false, priority: Int = 0,
+                      scheduler: Scheduler = Schedulers.immediate())
+            = subscribe(eventClass, Action1 { callback() }, sticky, priority, scheduler)
+
+    @JvmStatic
+    @JvmOverloads
+    fun <T> subscribe(eventClass: Class<T>, callback: (T) -> Unit,
+                      sticky: Boolean = false, priority: Int = 0,
+                      scheduler: Scheduler = Schedulers.immediate())
+            = subscribe(eventClass, Action1 { e -> callback(e) }, sticky, priority, scheduler)
+
+    @JvmStatic
+    @JvmOverloads
     fun <T> subscribe(eventClass: Class<T>, callback: Action1<T>,
                       sticky: Boolean = false, priority: Int = 0,
                       scheduler: Scheduler = Schedulers.immediate()): Subscription {

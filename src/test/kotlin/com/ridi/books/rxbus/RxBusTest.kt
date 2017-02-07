@@ -46,12 +46,12 @@ class RxBusTest {
             RxBus.post(Any())
             Assert.assertEquals(1, countAny)
 
-            subscription.add(RxBus.subscribe(Event::class.java, Action1 { countEvent++ }))
+            subscription.add(RxBus.subscribe(Event::class.java, { -> countEvent++ }))
             RxBus.post(Event())
             Assert.assertEquals(2, countAny)
             Assert.assertEquals(1, countEvent)
 
-            subscription.add(RxBus.subscribe(ChildEvent::class.java, Action1 { countChildEvent++ }))
+            subscription.add(RxBus.subscribe(ChildEvent::class.java, { -> countChildEvent++ }))
             RxBus.post(ChildEvent())
             Assert.assertEquals(3, countAny)
             Assert.assertEquals(2, countEvent)
@@ -82,7 +82,7 @@ class RxBusTest {
             RxBus.postSticky(event)
             Assert.assertEquals(event, RxBus.getStickyEvent(Event::class.java))
 
-            subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
+            subscription = RxBus.subscribe(Event::class.java, { e ->
                 calledEvent = e
                 count++
             }, sticky = true)
@@ -93,14 +93,14 @@ class RxBusTest {
             subscription.unsubscribe()
             Assert.assertEquals(event, RxBus.removeStickyEvent(Event::class.java))
 
-            subscription = RxBus.subscribe(Event::class.java, Action1 { count++ }, sticky = true)
+            subscription = RxBus.subscribe(Event::class.java, { -> count++ }, sticky = true)
             Assert.assertEquals(2, count)
             subscription.unsubscribe()
 
             calledEvent = null
             event = Event()
             RxBus.postSticky(event)
-            subscription = RxBus.subscribe(Event::class.java, Action1 { e ->
+            subscription = RxBus.subscribe(Event::class.java, { e ->
                 calledEvent = e
                 count++
             })
@@ -122,7 +122,7 @@ class RxBusTest {
     fun testScheduler() {
         val waiter = Waiter()
         var calledThreadId = Long.MIN_VALUE
-        val callback = Action1<Event> {
+        val callback = {
             calledThreadId = Thread.currentThread().id
             waiter.resume()
         }
@@ -149,12 +149,8 @@ class RxBusTest {
     fun testPriority() {
         val stack = Stack<Int>()
         val subscription = CompositeSubscription(
-            RxBus.subscribe(Event::class.java, Action1 {
-                stack.push(1)
-            }),
-            RxBus.subscribe(Event::class.java, Action1 {
-                stack.push(0)
-            }, priority = 1)
+            RxBus.subscribe(Event::class.java, { -> stack.push(1) }),
+            RxBus.subscribe(Event::class.java, { -> stack.push(0) }, priority = 1)
         )
 
         try {
@@ -172,8 +168,8 @@ class RxBusTest {
         var receivedMessage: String? = null
         var calledEvent: Event? = null
         val subscription = CompositeSubscription(
-                RxBus.subscribe(Event::class.java, Action1 { throw RuntimeException(message) }),
-                RxBus.subscribe(Event::class.java, Action1 { e -> calledEvent = e })
+                RxBus.subscribe(Event::class.java, { -> throw RuntimeException(message) }),
+                RxBus.subscribe(Event::class.java, { e -> calledEvent = e })
         )
         val errorHandler = Action1<Throwable> { throwable -> receivedMessage = throwable.message }
         try {
