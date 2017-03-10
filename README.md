@@ -25,7 +25,10 @@ Then you can include this library by adding dependency script to build.gradle fi
 ```
 dependencies {
     ...
-    compile 'com.github.ridibooks:RxBus:<version>'
+    compile 'com.github.ridibooks.RxBus:rxbus:<version>'
+
+    // Including Android plugin
+    compile 'com.github.ridibooks.RxBus:rxbus-android:<version>'
     ...
 }
 ```
