@@ -14,7 +14,7 @@ allprojects {
     repositories {
         jcenter()
     }
-}
 
-ext.group = 'com.github.ridibooks'
-ext.version = '1.0.0-rc1'
+    group = 'com.github.ridibooks.RxBus'
+    version = '1.0.0-rc1'
+}
