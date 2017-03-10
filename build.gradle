@@ -15,6 +15,5 @@ allprojects {
         jcenter()
     }
 
-    group = 'com.github.ridibooks.RxBus'
     version = '1.0.0-rc1'
 }
