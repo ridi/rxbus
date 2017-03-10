@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ridibooks/RxBus.svg?branch=master)](https://travis-ci.org/ridibooks/RxBus)
 [![Release](https://jitpack.io/v/ridibooks/RxBus.svg)](https://jitpack.io/#ridibooks/RxBus)
 
-Event bus framework supports sticky events and subscribers' priority based on [RxJava](https://github.com/ReactiveX/RxJava)
+Event bus framework supports sticky events and subscribers' priority based on [RxJava](https://github.com/ReactiveX/RxJava) 2.x
 
 ## Getting started
 

@@ -1,52 +1,25 @@
 package com.ridi.books.rxbus
 
-import rx.Observable
-import rx.Scheduler
-import rx.Subscription
-import rx.functions.Action1
-import rx.schedulers.Schedulers
-import rx.subjects.PublishSubject
-import rx.subjects.SerializedSubject
-import rx.subjects.Subject
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import java.util.*
 
 /**
  * Created by kering on 2017. 1. 12..
  */
 object RxBus {
-    private val subjects = TreeMap<Int, Subject<Any, Any>>()
+    private val subjects = TreeMap<Int, Subject<Any>>()
     private val stickyEventMap = hashMapOf<Class<*>, Any>()
-    private val errorHandlers = mutableListOf<Action1<Throwable>>()
-    private val onError = Action1<Throwable> { e ->
-        errorHandlers.forEach { it.call(e) }
-    }
-
-    fun addErrorHandler(handler: Action1<Throwable>) = errorHandlers.add(handler)
-
-    fun removeErrorHandler(handler: Action1<Throwable>) = errorHandlers.remove(handler)
+    private val subscriptionCounts = TreeMap<Int, Int>()
 
     @JvmStatic
     @JvmOverloads
-    fun <T> subscribe(eventClass: Class<T>, callback: () -> Unit,
-                      sticky: Boolean = false, priority: Int = 0,
-                      scheduler: Scheduler = Schedulers.immediate())
-            = subscribe(eventClass, Action1 { callback() }, sticky, priority, scheduler)
-
-    @JvmStatic
-    @JvmOverloads
-    fun <T> subscribe(eventClass: Class<T>, callback: (T) -> Unit,
-                      sticky: Boolean = false, priority: Int = 0,
-                      scheduler: Scheduler = Schedulers.immediate())
-            = subscribe(eventClass, Action1 { e -> callback(e) }, sticky, priority, scheduler)
-
-    @JvmStatic
-    @JvmOverloads
-    fun <T> subscribe(eventClass: Class<T>, callback: Action1<T>,
-                      sticky: Boolean = false, priority: Int = 0,
-                      scheduler: Scheduler = Schedulers.immediate()): Subscription {
+    fun <T> asObservable(eventClass: Class<T>,
+                         sticky: Boolean = false, priority: Int = 0): Observable<T> {
         val observable = synchronized(subjects) {
             (subjects[priority] ?: run {
-                val subject = SerializedSubject<Any, Any>(PublishSubject.create())
+                val subject = PublishSubject.create<Any>().toSerialized()
                 subjects[priority] = subject
                 subject
             }).ofType(eventClass)
@@ -57,11 +30,23 @@ object RxBus {
                     observable.mergeWith(Observable.create { subscriber ->
                         subscriber.onNext(eventClass.cast(lastEvent))
                     })
-                }
+                } ?: observable
             }
         } else {
-            null
-        } ?: observable).observeOn(scheduler).subscribe(callback, onError)
+            observable
+        }).doOnSubscribe {
+            synchronized(subjects) {
+                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { it + 1 } ?: 1
+            }
+        }.doOnDispose {
+            synchronized(subjects) {
+                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { it - 1 } ?: 0
+                if (subscriptionCounts[priority] == 0) {
+                    subjects.remove(priority)
+                    subscriptionCounts.remove(priority)
+                }
+            }
+        }
     }
 
     @JvmStatic

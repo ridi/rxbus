@@ -1,4 +1,5 @@
 language: java
 jdk: oraclejdk8
-after_script: cat build/test-results/test/*.xml
+script: ./gradlew test
+after_script: cat rxbus/build/test-results/test/*.xml
 
