@@ -49,6 +49,7 @@ object RxActivityLifecycleProviderPool {
 
     private var initialized = false
 
+    @JvmStatic
     @Synchronized
     fun init(application: Application) {
         if (initialized) {
@@ -58,6 +59,7 @@ object RxActivityLifecycleProviderPool {
         application.registerActivityLifecycleCallbacks(callbacks)
     }
 
+    @JvmStatic
     @Synchronized
     fun provider(target: Activity): LifecycleProvider<ActivityEvent> {
         val subject = subjects[target] ?:
