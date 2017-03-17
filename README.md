@@ -32,3 +32,29 @@ dependencies {
     ...
 }
 ```
+
+## How to use
+
+### Event subscription
+
+TBA
+
+### Event posting
+
+TBA
+
+### Stikcy events
+
+TBA
+
+### Priority
+
+TBA
+
+### Android plugin
+
+TBA
+
+#### Activity lifecycle binding
+
+TBA
