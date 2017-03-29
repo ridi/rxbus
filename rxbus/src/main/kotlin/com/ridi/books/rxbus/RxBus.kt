@@ -18,19 +18,21 @@ object RxBus {
     fun <T> asObservable(eventClass: Class<T>,
                          sticky: Boolean = false, priority: Int = 0): Observable<T> {
         val observable = synchronized(subjects) {
-            (subjects[priority] ?: run {
-                val subject = PublishSubject.create<Any>().toSerialized()
-                subjects[priority] = subject
-                subject
+            (subjects[priority] ?: PublishSubject.create<Any>().toSerialized().also {
+                subjects[priority] = it
             }).ofType(eventClass)
         }
         return (if (sticky) {
             synchronized(stickyEventMap) {
-                stickyEventMap[eventClass]?.let { lastEvent ->
-                    observable.mergeWith(Observable.create { subscriber ->
-                        subscriber.onNext(eventClass.cast(lastEvent))
-                    })
-                } ?: observable
+                stickyEventMap.filter { eventClass.isAssignableFrom(it.key) }
+                        .toSortedMap(Comparator { lhs, rhs ->
+                            if (lhs.isAssignableFrom(rhs)) 1 else -1
+                        }).map { it.value }
+                        .fold(observable, { observable, lastEvent ->
+                            observable.mergeWith { subscriber ->
+                                subscriber.onNext(eventClass.cast(lastEvent))
+                            }
+                        })
             }
         } else {
             observable

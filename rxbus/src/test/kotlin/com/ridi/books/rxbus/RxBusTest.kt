@@ -3,9 +3,7 @@ package com.ridi.books.rxbus
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
-import java.util.*
 
 /**
  * Created by kering on 2017. 1. 12..
@@ -13,11 +11,6 @@ import java.util.*
 class RxBusTest {
     open class Event
     class ChildEvent : Event()
-
-    @Before
-    fun a() {
-        System.gc()
-    }
 
     @Test
     fun testSubscribeAndPost() {
@@ -117,6 +110,19 @@ class RxBusTest {
             Assert.assertEquals(4, count)
             disposable.dispose()
             Assert.assertTrue(RxBus.removeStickyEvent(event))
+
+            val events = arrayOf(Event(), Any(), ChildEvent())
+            events.forEach { RxBus.postSticky(it) }
+            val calledEvents = mutableListOf<Any>()
+            RxBus.asObservable(Any::class.java, sticky = true).subscribe { e ->
+                calledEvents.add(e)
+            }
+
+            Assert.assertArrayEquals(
+                    arrayOf(events[2], events[0], events[1]), calledEvents.toTypedArray())
+            Assert.assertEquals(events[1], RxBus.removeStickyEvent(Any::class.java))
+            Assert.assertEquals(events[0], RxBus.removeStickyEvent(Event::class.java))
+            Assert.assertEquals(events[2], RxBus.removeStickyEvent(ChildEvent::class.java))
         } finally {
             disposable!!.dispose()
         }
@@ -124,16 +130,14 @@ class RxBusTest {
 
     @Test
     fun testPriority() {
-        val stack = Stack<Int>()
+        val list = mutableListOf<Int>()
         val disposables = CompositeDisposable(
-            RxBus.asObservable(Event::class.java).subscribe { stack.push(1) },
-            RxBus.asObservable(Event::class.java, priority = 1).subscribe { stack.push(0) }
+            RxBus.asObservable(Event::class.java).subscribe { list.add(0) },
+            RxBus.asObservable(Event::class.java, priority = 1).subscribe { list.add(1) }
         )
-
         try {
             RxBus.post(Event())
-            Assert.assertEquals(1, stack.pop())
-            Assert.assertEquals(0, stack.pop())
+            Assert.assertArrayEquals(arrayOf(1, 0), list.toTypedArray())
         } finally {
             disposables.dispose()
         }
