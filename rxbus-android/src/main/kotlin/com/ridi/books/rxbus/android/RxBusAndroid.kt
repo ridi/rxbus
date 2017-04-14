@@ -27,7 +27,8 @@ fun <T> Activity.rxBusObservable(eventClass: Class<T>, sticky: Boolean = false,
 @JvmOverloads
 fun <T> Fragment.rxBusObservable(eventClass: Class<T>,
                                  sticky: Boolean = false, priority: Int = 0): Observable<T> =
-        view.rxBusObservable(eventClass, sticky, priority)
+        RxBus.asObservable(eventClass, sticky, priority)
+                .takeWhile { view != null }.compose(RxLifecycleAndroid.bindView(view))
 
 @JvmOverloads
 fun <T> View.rxBusObservable(eventClass: Class<T>,
