@@ -16,5 +16,5 @@ allprojects {
     }
 
     group = 'com.github.ridibooks.RxBus'
-    version = '1.0.0-rc3'
+    version = '1.0.0-rc4'
 }
