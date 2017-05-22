@@ -46,7 +46,7 @@ class Event(val value: Int) {
 ### Event subscription/posting
 
 ```kotlin
-RxBus.observable(Event::class.java).subscribe { e ->
+RxBus.asObservable(Event::class.java).subscribe { e ->
     System.out.println(e.toString())
 }
 RxBus.post(Event(0))
@@ -64,7 +64,7 @@ Sticky event
 
 ```kotlin
 RxBus.postSticky(Event(0))
-RxBus.observable(Event::class:java, sticky = true).subscribe { e ->
+RxBus.asObservable(Event::class.java, sticky = true).subscribe { e ->
     System.out.println(e.toString())
 }
 RxBus.post(Event(1))
@@ -80,13 +80,13 @@ Output
 ### Subscription priority
 
 ```kotlin
-RxBus.observable(Event::class:java, priority = -1).subscribe { e ->
+RxBus.asObservable(Event::class.java, priority = -1).subscribe { e ->
     System.out.println("-1 Priority : $e")
 }
-RxBus.observable(Event::class:java, priority = 1).subscribe { e ->
+RxBus.asObservable(Event::class.java, priority = 1).subscribe { e ->
     System.out.println("1 Priority : $e")
 }
-RxBus.observable(Event::class:java).subscribe { e ->
+RxBus.asObservable(Event::class.java).subscribe { e ->
     System.out.println("Default(0) Priority : $e")
 }
 RxBus.post(Event(0))
@@ -102,8 +102,82 @@ Default(0) Priority : {value=0}
 
 ### Android plugin
 
-TBA
+#### RxActivityLifecycleProviderPool
 
-#### Activity lifecycle binding
+Initializing
 
-TBA
+```kotlin
+class SomeApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        RxActivityLifecycleProviderPool.init(this)
+    }
+}
+```
+
+Usage
+
+```kotlin
+class SomeActivity : Activity() {
+    override fun onCreate() {
+        super.onCreate()
+      
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onDestroy()
+      
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this)
+                    .bindUntilEvent(ActivityEvent.PAUSE))
+            .subscribe { ... } // This subscription will survive until onPause()
+      
+        Observable.create(...)
+      		.compose(RxActivityLifecycleProviderPool.provider(this))
+            .subscribe { ... } // Not only RxBus observable
+    }
+  
+    override fun onStart() {
+        super.onStart()
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onStop()
+    }
+  
+    override fun onResume() {
+        super.onResume()
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onPause()
+    }
+}
+```
+
+#### Simple extensions for Activity, Fragment, View
+
+```kotlin
+class SomeActivity : Activity() {
+    ...
+        // Automatic binding to activity lifecycle by RxActivityLifecycleProviderPool
+        rxBusObservable(Event::class.java).subscribe { ... }
+    ...
+}
+```
+
+```kotlin
+class SomeFragment : Fragment() {
+    ...
+        // Automatic binding to attachment/detachment of fragments' view
+        rxBusObservable(Event::class.java).subscribe { ... }
+    ...
+}
+```
+
+```kotlin
+class SomeView : View {
+    ...
+        // Automatic binding to attachment/detachment of view
+        rxBusObservable(Event::class.java).subsribe { ... }
+    ...
+}
+```
+
