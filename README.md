@@ -11,7 +11,7 @@ This library is distributed by [jitpack](https://jitpack.io).
 
 You should add jitpack maven repository to build.gradle file of your root project.
 
-```
+```groovy
 allprojects {
     repositories {
         jcenter()
@@ -22,7 +22,7 @@ allprojects {
 
 Then you can include this library by adding dependency script to build.gradle file of your project.
 
-```
+```groovy
 dependencies {
     ...
     compile 'com.github.ridibooks.RxBus:rxbus:<version>'
@@ -35,21 +35,70 @@ dependencies {
 
 ## How to use
 
-### Event subscription
+### Defining event class
 
-TBA
+```kotlin
+class Event(val value: Int) {
+    override fun toString() = "{value=$value}"
+}
+```
 
-### Event posting
+### Event subscription/posting
 
-TBA
+```kotlin
+RxBus.observable(Event::class.java).subscribe { e ->
+    System.out.println(e.toString())
+}
+RxBus.post(Event(0))
+```
 
-### Stikcy events
+Output
 
-TBA
+```
+{value=0}
+```
 
-### Priority
+### Sticky events
 
-TBA
+Sticky event 
+
+```kotlin
+RxBus.postSticky(Event(0))
+RxBus.observable(Event::class:java, sticky = true).subscribe { e ->
+    System.out.println(e.toString())
+}
+RxBus.post(Event(1))
+```
+
+Output
+
+```
+{value=0}
+{value=1}
+```
+
+### Subscription priority
+
+```kotlin
+RxBus.observable(Event::class:java, priority = -1).subscribe { e ->
+    System.out.println("-1 Priority : $e")
+}
+RxBus.observable(Event::class:java, priority = 1).subscribe { e ->
+    System.out.println("1 Priority : $e")
+}
+RxBus.observable(Event::class:java).subscribe { e ->
+    System.out.println("Default(0) Priority : $e")
+}
+RxBus.post(Event(0))
+```
+
+Output
+
+```
+1 Priority : {value=0}
+Default(0) Priority : {value=0}
+-1 Priority : {value=0}
+```
 
 ### Android plugin
 
