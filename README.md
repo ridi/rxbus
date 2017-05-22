@@ -11,7 +11,7 @@ This library is distributed by [jitpack](https://jitpack.io).
 
 You should add jitpack maven repository to build.gradle file of your root project.
 
-```
+```groovy
 allprojects {
     repositories {
         jcenter()
@@ -22,7 +22,7 @@ allprojects {
 
 Then you can include this library by adding dependency script to build.gradle file of your project.
 
-```
+```groovy
 dependencies {
     ...
     compile 'com.github.ridibooks.RxBus:rxbus:<version>'
@@ -32,3 +32,152 @@ dependencies {
     ...
 }
 ```
+
+## How to use
+
+### Defining event class
+
+```kotlin
+class Event(val value: Int) {
+    override fun toString() = "{value=$value}"
+}
+```
+
+### Event subscription/posting
+
+```kotlin
+RxBus.asObservable(Event::class.java).subscribe { e ->
+    System.out.println(e.toString())
+}
+RxBus.post(Event(0))
+```
+
+Output
+
+```
+{value=0}
+```
+
+### Sticky events
+
+Sticky event 
+
+```kotlin
+RxBus.postSticky(Event(0))
+RxBus.asObservable(Event::class.java, sticky = true).subscribe { e ->
+    System.out.println(e.toString())
+}
+RxBus.post(Event(1))
+```
+
+Output
+
+```
+{value=0}
+{value=1}
+```
+
+### Subscription priority
+
+```kotlin
+RxBus.asObservable(Event::class.java, priority = -1).subscribe { e ->
+    System.out.println("-1 Priority : $e")
+}
+RxBus.asObservable(Event::class.java, priority = 1).subscribe { e ->
+    System.out.println("1 Priority : $e")
+}
+RxBus.asObservable(Event::class.java).subscribe { e ->
+    System.out.println("Default(0) Priority : $e")
+}
+RxBus.post(Event(0))
+```
+
+Output
+
+```
+1 Priority : {value=0}
+Default(0) Priority : {value=0}
+-1 Priority : {value=0}
+```
+
+### Android plugin
+
+#### RxActivityLifecycleProviderPool
+
+Initializing
+
+```kotlin
+class SomeApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        RxActivityLifecycleProviderPool.init(this)
+    }
+}
+```
+
+Usage
+
+```kotlin
+class SomeActivity : Activity() {
+    override fun onCreate() {
+        super.onCreate()
+      
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onDestroy()
+      
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this)
+                    .bindUntilEvent(ActivityEvent.PAUSE))
+            .subscribe { ... } // This subscription will survive until onPause()
+      
+        Observable.create(...)
+      		.compose(RxActivityLifecycleProviderPool.provider(this))
+            .subscribe { ... } // Not only RxBus observable
+    }
+  
+    override fun onStart() {
+        super.onStart()
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onStop()
+    }
+  
+    override fun onResume() {
+        super.onResume()
+        RxBus.asObservable(Event::class.java)
+            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+            .subscribe { ... } // This subscription will survive until onPause()
+    }
+}
+```
+
+#### Simple extensions for Activity, Fragment, View
+
+```kotlin
+class SomeActivity : Activity() {
+    ...
+        // Automatic binding to activity lifecycle by RxActivityLifecycleProviderPool
+        rxBusObservable(Event::class.java).subscribe { ... }
+    ...
+}
+```
+
+```kotlin
+class SomeFragment : Fragment() {
+    ...
+        // Automatic binding to attachment/detachment of fragments' view
+        rxBusObservable(Event::class.java).subscribe { ... }
+    ...
+}
+```
+
+```kotlin
+class SomeView : View {
+    ...
+        // Automatic binding to attachment/detachment of view
+        rxBusObservable(Event::class.java).subsribe { ... }
+    ...
+}
+```
+
