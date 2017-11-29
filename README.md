@@ -1,7 +1,7 @@
 # RxBus
 
-[![Build Status](https://travis-ci.org/ridibooks/RxBus.svg?branch=master)](https://travis-ci.org/ridibooks/RxBus)
-[![Release](https://jitpack.io/v/ridibooks/RxBus.svg)](https://jitpack.io/#ridibooks/RxBus)
+[![Build Status](https://travis-ci.org/ridi/RxBus.svg?branch=master)](https://travis-ci.org/ridi/RxBus)
+[![Release](https://jitpack.io/v/ridi/RxBus.svg)](https://jitpack.io/#ridi/RxBus)
 
 Event bus framework supports sticky events and subscribers' priority based on [RxJava](https://github.com/ReactiveX/RxJava) 2.x
 
@@ -25,10 +25,10 @@ Then you can include this library by adding dependency script to build.gradle fi
 ```groovy
 dependencies {
     ...
-    compile 'com.github.ridibooks.RxBus:rxbus:<version>'
+    compile 'com.github.ridi.RxBus:rxbus:<version>'
 
     // Including Android plugin
-    compile 'com.github.ridibooks.RxBus:rxbus-android:<version>'
+    compile 'com.github.ridi.RxBus:rxbus-android:<version>'
     ...
 }
 ```
