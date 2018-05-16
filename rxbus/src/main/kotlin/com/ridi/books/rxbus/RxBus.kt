@@ -80,11 +80,11 @@ object RxBus {
     fun removeStickyEvent(event: Any): Boolean {
         synchronized(stickyEventMap) {
             val eventClass = event.javaClass
-            if (stickyEventMap[eventClass] == event) {
+            return if (stickyEventMap[eventClass] === event) {
                 stickyEventMap.remove(eventClass)
-                return true
+                true
             } else {
-                return false
+                false
             }
         }
     }
