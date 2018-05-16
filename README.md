@@ -27,7 +27,7 @@ dependencies {
     ...
     compile 'com.github.ridi.RxBus:rxbus:<version>'
 
-    // Including Android plugin
+    // Or including Android plugin
     compile 'com.github.ridi.RxBus:rxbus-android:<version>'
     ...
 }
