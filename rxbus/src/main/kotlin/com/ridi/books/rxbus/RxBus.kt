@@ -3,11 +3,8 @@ package com.ridi.books.rxbus
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.*
+import java.util.TreeMap
 
-/**
- * Created by kering on 2017. 1. 12..
- */
 object RxBus {
     private val subjects = TreeMap<Int, Subject<Any>>()
     private val stickyEventMap = hashMapOf<Class<*>, Any>()
@@ -15,8 +12,7 @@ object RxBus {
 
     @JvmStatic
     @JvmOverloads
-    fun <T> asObservable(eventClass: Class<T>,
-                         sticky: Boolean = false, priority: Int = 0): Observable<T> {
+    fun <T> asObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> {
         val observable = synchronized(subjects) {
             (subjects[priority] ?: PublishSubject.create<Any>().toSerialized().also {
                 subjects[priority] = it
@@ -25,14 +21,14 @@ object RxBus {
         return (if (sticky) {
             synchronized(stickyEventMap) {
                 stickyEventMap.filter { eventClass.isAssignableFrom(it.key) }
-                        .toSortedMap(Comparator { lhs, rhs ->
-                            if (lhs.isAssignableFrom(rhs)) 1 else -1
-                        }).map { it.value }
-                        .fold(observable, { observable, lastEvent ->
-                            observable.mergeWith { subscriber ->
-                                subscriber.onNext(eventClass.cast(lastEvent))
-                            }
-                        })
+                    .toSortedMap(Comparator { lhs, rhs ->
+                        if (lhs.isAssignableFrom(rhs)) 1 else -1
+                    }).map { it.value }
+                    .fold(observable, { observable, lastEvent ->
+                        observable.mergeWith { subscriber ->
+                            subscriber.onNext(eventClass.cast(lastEvent))
+                        }
+                    })
             }
         } else {
             observable
