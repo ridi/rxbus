@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- [RxBusAndroid] Add `android.support.v4.app.Fragment.rxBusObservable`.
+
 ### Changed
-- Check the event object's identity instead of equality when removing a sticky event.
+- Check event object's identity instead of equality when removing a sticky event.
 
 ## [1.0.0] - 2017-05-22
 
@@ -14,11 +17,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0-rc4] - 2017-04-14
 ### Fixed
-- [RxBusAndroid] Check if view is null when fragment binding.
+- [RxBusAndroid] Check if the view is null when fragment binding.
 
 ## [1.0.0-rc3] - 2017-03-29
 ### Fixed
-- Fix bug that sticky event was not delivered to its super classes’ subscribers.
+- Fix a bug that sticky event was not delivered to its super classes’ subscribers.
 
 ## [1.0.0-rc2] - 2017-03-13
 ### Added
@@ -30,4 +33,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.0-rc1] - 2017-03-10
 ### Changed
 - Upagrade base `RxJava` library version from 1.1.5 to 2.0.7.
-- Expose `io.reactivex.Observable` object to make more flexible.
+- Expose `io.reactivex.Observable` objects to make more flexible.

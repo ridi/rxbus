@@ -34,7 +34,8 @@ android {
 
 dependencies {
     compile project(':rxbus')
-    compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.0.1'
+    provided 'com.android.support:support-fragment:27.1.1'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1'
 }
 
 task sourcesJar(type: Jar) {
