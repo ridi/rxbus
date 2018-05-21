@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - [RxBusAndroid] Add `android.support.v4.app.Fragment.rxBusObservable`.
-- [RxBusAndroid] Add a dependency to `rxlifecycle-kotlin`.
 
 ### Changed
+- Upagrade base `RxJava` library version from 2.0.7 to 2.1.3.
 - Check event object's identity instead of equality when removing a sticky event.
+- [RxBusAndroid] Add a dependency to `rxlifecycle-kotlin`.
 
 ## [1.0.0] - 2017-05-22
 
