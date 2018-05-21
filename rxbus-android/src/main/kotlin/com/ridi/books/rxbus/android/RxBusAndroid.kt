@@ -5,13 +5,13 @@ import android.app.Fragment
 import android.view.View
 import com.ridi.books.rxbus.RxBus
 import com.trello.rxlifecycle2.android.ActivityEvent
-import com.trello.rxlifecycle2.android.RxLifecycleAndroid
+import com.trello.rxlifecycle2.kotlin.bindToLifecycle
+import com.trello.rxlifecycle2.kotlin.bindUntilEvent
 import io.reactivex.Observable
 
 @JvmOverloads
 fun <T> Activity.rxBusObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> =
-    RxBus.asObservable(eventClass, sticky, priority)
-        .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
+    RxBus.asObservable(eventClass, sticky, priority).bindToLifecycle(RxActivityLifecycleProviderPool.provider(this))
 
 @JvmOverloads
 fun <T> Activity.rxBusObservable(
@@ -20,12 +20,12 @@ fun <T> Activity.rxBusObservable(
     priority: Int = 0,
     bindUntil: ActivityEvent
 ): Observable<T> = RxBus.asObservable(eventClass, sticky, priority)
-    .compose(RxActivityLifecycleProviderPool.provider(this).bindUntilEvent(bindUntil))
+    .bindUntilEvent(RxActivityLifecycleProviderPool.provider(this), bindUntil)
 
 @JvmOverloads
 fun <T> Fragment.rxBusObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> =
     RxBus.asObservable(eventClass, sticky, priority)
-        .takeWhile { view != null }.compose(RxLifecycleAndroid.bindView(view))
+        .takeWhile { view != null }.bindToLifecycle(view)
 
 @JvmOverloads
 fun <T> android.support.v4.app.Fragment.rxBusObservable(
@@ -33,8 +33,8 @@ fun <T> android.support.v4.app.Fragment.rxBusObservable(
     sticky: Boolean = false,
     priority: Int = 0
 ): Observable<T> = RxBus.asObservable(eventClass, sticky, priority)
-    .takeWhile { view != null }.compose(RxLifecycleAndroid.bindView(view!!))
+    .takeWhile { view != null }.bindToLifecycle(view!!)
 
 @JvmOverloads
 fun <T> View.rxBusObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> =
-    RxBus.asObservable(eventClass, sticky, priority).compose(RxLifecycleAndroid.bindView(this))
+    RxBus.asObservable(eventClass, sticky, priority).bindToLifecycle(this)

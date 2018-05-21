@@ -35,6 +35,7 @@ android {
 dependencies {
     api project(':rxbus')
     api 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1'
+    api 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.1'
 
     implementation 'com.android.support:support-fragment:27.1.1'
 }
