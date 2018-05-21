@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -33,9 +33,10 @@ android {
 }
 
 dependencies {
-    compile project(':rxbus')
-    provided 'com.android.support:support-fragment:27.1.1'
-    compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1'
+    api project(':rxbus')
+    api 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1'
+
+    implementation 'com.android.support:support-fragment:27.1.1'
 }
 
 task sourcesJar(type: Jar) {
