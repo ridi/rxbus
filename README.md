@@ -9,20 +9,19 @@ Event bus framework supports sticky events and subscribers' priority based on [R
 
 This library is distributed by [jitpack](https://jitpack.io).
 
-You should add jitpack maven repository to build.gradle file of your root project.
+You should add jitpack maven repository to build.gradle file of your project.
 
-```groovy
-allprojects {
-    repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
-    }
+```
+repositories {
+    ...
+    maven { url "https://jitpack.io" }
+    ...
 }
 ```
 
 Then you can include this library by adding dependency script to build.gradle file of your project.
 
-```groovy
+```
 dependencies {
     ...
     compile 'com.github.ridi.RxBus:rxbus:<version>'
