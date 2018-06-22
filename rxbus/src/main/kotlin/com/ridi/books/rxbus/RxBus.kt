@@ -49,7 +49,7 @@ object RxBus {
 
     @JvmStatic
     fun post(event: Any) = synchronized(subjects) {
-        subjects.descendingMap().forEach {
+        subjects.descendingMap().toMap().forEach {
             it.value.onNext(event)
         }
     }

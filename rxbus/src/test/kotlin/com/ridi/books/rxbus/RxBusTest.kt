@@ -5,9 +5,6 @@ import io.reactivex.disposables.Disposable
 import org.junit.Assert
 import org.junit.Test
 
-/**
- * Created by kering on 2017. 1. 12..
- */
 class RxBusTest {
     open class Event
     class ChildEvent : Event()
@@ -45,8 +42,7 @@ class RxBusTest {
             Assert.assertEquals(2, countAny)
             Assert.assertEquals(1, countEvent)
 
-            disposables.add(
-                    RxBus.asObservable(ChildEvent::class.java).subscribe { countChildEvent++ })
+            disposables.add(RxBus.asObservable(ChildEvent::class.java).subscribe { countChildEvent++ })
             RxBus.post(ChildEvent())
             Assert.assertEquals(3, countAny)
             Assert.assertEquals(2, countEvent)
@@ -118,8 +114,7 @@ class RxBusTest {
                 calledEvents.add(e)
             }
 
-            Assert.assertArrayEquals(
-                    arrayOf(events[2], events[0], events[1]), calledEvents.toTypedArray())
+            Assert.assertArrayEquals(arrayOf(events[2], events[0], events[1]), calledEvents.toTypedArray())
             Assert.assertEquals(events[1], RxBus.removeStickyEvent(Any::class.java))
             Assert.assertEquals(events[0], RxBus.removeStickyEvent(Event::class.java))
             Assert.assertEquals(events[2], RxBus.removeStickyEvent(ChildEvent::class.java))
