@@ -24,11 +24,11 @@ object RxBus {
                     .toSortedMap(Comparator { lhs, rhs ->
                         if (lhs.isAssignableFrom(rhs)) 1 else -1
                     }).map { it.value }
-                    .fold(observable, { observable, lastEvent ->
+                    .fold(observable) { observable, lastEvent ->
                         observable.mergeWith { subscriber ->
                             subscriber.onNext(eventClass.cast(lastEvent))
                         }
-                    })
+                    }
             }
         } else {
             observable
