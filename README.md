@@ -14,7 +14,7 @@ You should add jitpack maven repository to build.gradle file of your project.
 ```
 repositories {
     ...
-    maven { url "https://jitpack.io" }
+    maven { url 'https://jitpack.io' }
     ...
 }
 ```
