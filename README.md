@@ -25,9 +25,6 @@ Then you can include this library by adding dependency script to build.gradle fi
 dependencies {
     ...
     compile 'com.github.ridi.RxBus:rxbus:<version>'
-
-    // Or including Android plugin
-    compile 'com.github.ridi.RxBus:rxbus-android:<version>'
     ...
 }
 ```
@@ -98,85 +95,3 @@ Output
 Default(0) Priority : {value=0}
 -1 Priority : {value=0}
 ```
-
-### Android plugin
-
-#### RxActivityLifecycleProviderPool
-
-Initializing
-
-```kotlin
-class SomeApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        RxActivityLifecycleProviderPool.init(this)
-    }
-}
-```
-
-Usage
-
-```kotlin
-class SomeActivity : Activity() {
-    override fun onCreate() {
-        super.onCreate()
-      
-        RxBus.asObservable(Event::class.java)
-            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
-            .subscribe { ... } // This subscription will survive until onDestroy()
-      
-        RxBus.asObservable(Event::class.java)
-            .compose(RxActivityLifecycleProviderPool.provider(this)
-                    .bindUntilEvent(ActivityEvent.PAUSE))
-            .subscribe { ... } // This subscription will survive until onPause()
-      
-        Observable.create(...)
-      		.compose(RxActivityLifecycleProviderPool.provider(this))
-            .subscribe { ... } // Not only RxBus observable
-    }
-  
-    override fun onStart() {
-        super.onStart()
-        RxBus.asObservable(Event::class.java)
-            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
-            .subscribe { ... } // This subscription will survive until onStop()
-    }
-  
-    override fun onResume() {
-        super.onResume()
-        RxBus.asObservable(Event::class.java)
-            .compose(RxActivityLifecycleProviderPool.provider(this).bindToLifecycle())
-            .subscribe { ... } // This subscription will survive until onPause()
-    }
-}
-```
-
-#### Simple extensions for Activity, Fragment, View
-
-```kotlin
-class SomeActivity : Activity() {
-    ...
-        // Automatic binding to activity lifecycle by RxActivityLifecycleProviderPool
-        rxBusObservable(Event::class.java).subscribe { ... }
-    ...
-}
-```
-
-```kotlin
-class SomeFragment : Fragment() {
-    ...
-        // Automatic binding to attachment/detachment of fragments' view
-        rxBusObservable(Event::class.java).subscribe { ... }
-    ...
-}
-```
-
-```kotlin
-class SomeView : View {
-    ...
-        // Automatic binding to attachment/detachment of view
-        rxBusObservable(Event::class.java).subsribe { ... }
-    ...
-}
-```
-
