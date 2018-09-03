@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.0] - 2018-09-03
 ### Removed
 - `RxBusAndroid` was removed.
   - Use other tools instead such as [AutoDispose](https://github.com/uber/AutoDispose) or manage subscriptions manually.
