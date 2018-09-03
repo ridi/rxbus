@@ -24,7 +24,7 @@ Then you can include this library by adding dependency script to build.gradle fi
 ```
 dependencies {
     ...
-    compile 'com.github.ridi.RxBus:rxbus:<version>'
+    compile 'com.github.ridi:rxbus:<version>'
     ...
 }
 ```
