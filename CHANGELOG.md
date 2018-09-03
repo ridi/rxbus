@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Removed
-- `RxBusAndroid` was removed. Use [AutoDispose](https://github.com/uber/AutoDispose) instead.
+- `RxBusAndroid` was removed.
+  - Use other tools instead such as [AutoDispose](https://github.com/uber/AutoDispose) or manage subscriptions manually.
 
 ## [1.0.2] - 2018-06-22
 ### Fixed
