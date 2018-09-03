@@ -1,14 +1,6 @@
-language: android
+language: java
 jdk: oraclejdk8
-
-android:
-  components:
-    - tools
-    - tools
-    - platform-tools
-    - build-tools-27.0.3
-    - android-27
 
 script: ./gradlew check
 
-after_script: cat rxbus/build/test-results/test/*.xml
+after_script: cat build/test-results/test/*.xml
