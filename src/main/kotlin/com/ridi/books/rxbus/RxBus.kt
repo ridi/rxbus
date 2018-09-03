@@ -1,6 +1,7 @@
 package com.ridi.books.rxbus
 
 import io.reactivex.Observable
+import io.reactivex.ObservableSource
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.util.TreeMap
@@ -25,9 +26,9 @@ object RxBus {
                         if (lhs.isAssignableFrom(rhs)) 1 else -1
                     }).map { it.value }
                     .fold(observable) { observable, lastEvent ->
-                        observable.mergeWith { subscriber ->
-                            subscriber.onNext(eventClass.cast(lastEvent))
-                        }
+                        observable.mergeWith(ObservableSource { observer ->
+                            observer.onNext(eventClass.cast(lastEvent))
+                        })
                     }
             }
         } else {
