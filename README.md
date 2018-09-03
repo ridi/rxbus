@@ -1,7 +1,7 @@
 # RxBus
 
-[![Build Status](https://travis-ci.org/ridi/RxBus.svg?branch=master)](https://travis-ci.org/ridi/rxbus)
-[![Release](https://jitpack.io/v/ridi/RxBus.svg)](https://jitpack.io/#ridi/rxbus)
+[![Build Status](https://travis-ci.org/ridi/rxbus.svg?branch=master)](https://travis-ci.org/ridi/rxbus)
+[![Release](https://jitpack.io/v/ridi/rxbus.svg)](https://jitpack.io/#ridi/rxbus)
 
 Event bus framework supports sticky events and subscribers' priority based on [RxJava](https://github.com/ReactiveX/RxJava) 2.x
 
