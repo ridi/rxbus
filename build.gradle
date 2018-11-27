@@ -60,3 +60,17 @@ task ktlintFormat(type: JavaExec, group: 'formatting') {
     main = 'com.github.shyiko.ktlint.Main'
     args '-F', 'src/**/*.kt'
 }
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            licenses {
+                license {
+                    name 'The MIT License'
+                    url 'https://opensource.org/licenses/MIT'
+                    distribution 'repo'
+                }
+            }
+        }
+    }
+}
