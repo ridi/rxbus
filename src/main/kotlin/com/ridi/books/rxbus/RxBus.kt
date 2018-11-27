@@ -35,11 +35,11 @@ object RxBus {
             observable
         }).doOnSubscribe {
             synchronized(subjects) {
-                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { it + 1 } ?: 1
+                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { count -> count + 1 } ?: 1
             }
         }.doOnDispose {
             synchronized(subjects) {
-                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { it - 1 } ?: 0
+                subscriptionCounts[priority] = subscriptionCounts[priority]?.let { count -> count - 1 } ?: 0
                 if (subscriptionCounts[priority] == 0) {
                     subjects.remove(priority)
                     subscriptionCounts.remove(priority)

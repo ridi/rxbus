@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
 - Explicit license information was added to Maven POM.
+- Bump `RxJava` library version from 2.2.1 to 2.2.2.
 
 ## [1.1.0] - 2018-09-03
+### Changed
+- Bump `RxJava` library version from 2.1.3 to 2.2.1.
+
 ### Removed
 - `RxBusAndroid` was removed.
   - Use other tools instead such as [AutoDispose](https://github.com/uber/AutoDispose) or manage subscriptions manually.
@@ -22,7 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [RxBusAndroid] Add `android.support.v4.app.Fragment.rxBusObservable`.
 
 ### Changed
-- Upagrade base `RxJava` library version from 2.0.7 to 2.1.3.
+- Bump `RxJava` library version from 2.0.7 to 2.1.3.
 - Check event object's identity instead of equality when removing a sticky event.
 - [RxBusAndroid] Add a dependency to `rxlifecycle-kotlin`.
 
@@ -47,5 +51,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0-rc1] - 2017-03-10
 ### Changed
-- Upagrade base `RxJava` library version from 1.1.5 to 2.0.7.
+- Bump `RxJava` library version from 1.1.5 to 2.0.7.
 - Expose `io.reactivex.Observable` objects to make more flexible.
