@@ -22,9 +22,9 @@ object RxBus {
         return (if (sticky) {
             synchronized(stickyEventMap) {
                 stickyEventMap.filter { eventClass.isAssignableFrom(it.key) }
-                    .toSortedMap(Comparator { lhs, rhs ->
+                    .toSortedMap { lhs, rhs ->
                         if (lhs.isAssignableFrom(rhs)) 1 else -1
-                    }).map { it.value }
+                    }.map { it.value }
                     .fold(observable) { observable, lastEvent ->
                         observable.mergeWith(ObservableSource { observer ->
                             observer.onNext(eventClass.cast(lastEvent))
