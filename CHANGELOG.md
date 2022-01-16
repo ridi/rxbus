@@ -5,10 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- None.
 
 ## [1.1.2] - 2022-01-16
 ### Changed
+- Replace `jcenter` to `mavenCentral`.
 - Bump `kotlin` version from 1.3.10 to 1.4.21.
 - Bump `RxJava` library version from 2.2.2 to 2.2.20.
 
