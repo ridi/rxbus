@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2022-10-11
+**RxJava version changed from 2.x to 3.x**
+
+### Changed
+- Bump `kotlin` version from 1.4.21 to 1.5.21.
+- Bump `RxJava` library version from 2.2.20 to 3.1.5.
+
 
 ## [1.1.2] - 2022-01-16
 ### Changed
