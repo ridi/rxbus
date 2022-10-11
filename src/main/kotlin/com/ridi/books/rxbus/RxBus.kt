@@ -1,9 +1,9 @@
 package com.ridi.books.rxbus
 
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableSource
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import java.util.TreeMap
 
 object RxBus {
@@ -13,7 +13,7 @@ object RxBus {
 
     @JvmStatic
     @JvmOverloads
-    fun <T> asObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> {
+    fun <T : Any> asObservable(eventClass: Class<T>, sticky: Boolean = false, priority: Int = 0): Observable<T> {
         val observable = synchronized(subjects) {
             (subjects[priority] ?: PublishSubject.create<Any>().toSerialized().also {
                 subjects[priority] = it

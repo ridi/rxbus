@@ -1,7 +1,7 @@
 package com.ridi.books.rxbus
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import org.junit.Assert
 import org.junit.Test
 
